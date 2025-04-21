@@ -1,0 +1,7 @@
+lambda/get_recipes/package
+lambda/get_recipes/build.sh
+lambda/get_recipes/lambda-deployment.zip
+.DS_Store
+
+# Ignore all .zip files
+*.zip
