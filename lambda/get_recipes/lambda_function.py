@@ -23,9 +23,14 @@ def lambda_handler(event, context):
         # Extract user and request data from the input
         user_data = event.get('user', {})
         request_data = event.get('request', {})
+
+        allergies = [s.lower() for s in user_data.get("allergies", [])]
+        dislikes  = [s.lower() for s in user_data.get("dislikes",  [])]
         
         print(f"[INFO] User data: {json.dumps(user_data)}")
         print(f"[INFO] Request data: {json.dumps(request_data)}")
+        print(f"[INFO] Allergies: {allergies}")
+        print(f"[INFO] Dislikes : {dislikes}") 
         
         # Build the query string from user preferences and request
         query_string = build_query_string(user_data, request_data)
@@ -40,6 +45,11 @@ def lambda_handler(event, context):
         print("[INFO] Querying Pinecone...")
         recipes = query_pinecone(embedding)
         print(f"[INFO] Received {len(recipes)} recipes from Pinecone")
+
+        # Filter out recipes that contain user allergies or dislikes
+        print("[INFO] Filtering recipes for allergies and dislikes...")
+        recipes = filterAllergiesAndDislikes(recipes, allergies, dislikes)
+        print(f"[INFO] Filtered down to {len(recipes)} recipes after allergy/dislike check")
         
         return {
             'statusCode': 200,
@@ -240,7 +250,8 @@ def query_pinecone(embedding_vector):
     query_response = index.query(
         vector=embedding_vector,
         top_k=top_k,
-        include_values=True
+        include_values=True,
+        include_metadata=True
     )
     
     print(f"[INFO] Pinecone query response received")
@@ -257,6 +268,7 @@ def query_pinecone(embedding_vector):
         recipe = {
             'id': match.id,
             'score': match.score,
+            'metadata': match.metadata
         }
         print(f"[INFO] Recipe ID: {match.id}")
         print(f"[INFO] Recipe score: {match.score}")
@@ -264,3 +276,46 @@ def query_pinecone(embedding_vector):
     
     print(f"[INFO] Returning {len(recipes)} recipes")
     return recipes
+
+def filterAllergiesAndDislikes(
+    matches: list,
+    allergies: list[str] | None = None,
+    dislikes:  list[str] | None = None
+) -> list:
+    """
+    Returns list of matches that do not contain any allergens or disliked items.
+    """
+    allergies = set(a.lower() for a in (allergies or []))
+    dislikes  = set(d.lower() for d in (dislikes  or []))
+
+    safe_matches = []
+    for m in matches:
+        ing_raw  = m.get("metadata", {}).get("ingredients")
+        ing_set  = set(i.lower() for i in _to_token_list(ing_raw))
+
+        if ing_set & allergies:
+            continue                
+        if ing_set & dislikes:
+            continue               
+
+        safe_matches.append(m)
+
+    return safe_matches
+
+def _to_token_list(raw):
+    """
+    Normalize the 'ingredients' field into a list[str].
+    """
+    if raw is None:
+        return []
+
+    # Already a list?  Good.
+    if isinstance(raw, list):
+        return raw
+
+    # String?  Strip brackets & quotes, then split on commas
+    if isinstance(raw, str):
+        cleaned = re.sub(r"[\[\]\"'()]", "", raw)
+        return [tok.strip() for tok in cleaned.split(",") if tok.strip()]
+
+    return []   # fallback
