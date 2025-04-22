@@ -13,10 +13,16 @@
 
 
 ### New Service Used
+- Pinecone vector DB
 
 ### Scaling Our Project
 Describe how architecture would change
 
 ### Projected Future Work
+- Allow users to rate recipes they’ve tried and incorporate those into our model
+- Include nutritional information
+- Scale to use a larger recipe list
+- Add more details to the UI
+
 
 ### Demo Script
