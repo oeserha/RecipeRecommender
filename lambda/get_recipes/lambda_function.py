@@ -211,7 +211,9 @@ def call_sagemaker_endpoint(query_string):
     if not embedding_data[0] or not isinstance(embedding_data[0], list) or len(embedding_data[0]) == 0:
         raise ValueError("Unexpected embedding data structure: first element empty or not a list")
     
-    embedding_vector = embedding_data[0][0]
+    # Take the average of all token embeddings
+    embedding_sum = [sum(x) for x in zip(*embedding_data[0])]
+    embedding_vector = [x / len(embedding_data[0]) for x in embedding_sum]
     print(f"[INFO] Extracted embedding vector length: {len(embedding_vector) if embedding_vector else 'N/A'}")
     
     return embedding_vector
