@@ -2,6 +2,7 @@ import json
 import boto3
 import os
 from pinecone import Pinecone
+import re
 
 # Initialize the SageMaker runtime client
 sagemaker_runtime = boto3.client('sagemaker-runtime')
