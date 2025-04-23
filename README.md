@@ -37,3 +37,4 @@ To generate recipe and query embeddings, we use a BERT-based model deployed with
 
 
 ### Demo Script
+See demo.ipynb to see some of the basics of our recommendation system!
