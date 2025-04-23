@@ -16,9 +16,9 @@ To make the system production-ready, we incorporated automation pipelines for em
   - User requests are embedded along with user info to find recipes to recommend
   - Personalized Results are returned to the user
 
-
 ### New Service Used
 - Pinecone vector DB
+- EventBridge: used to trigger certain events, such as redoing model selection when triggered by model monitor or to re-embedding recipes based on new model
 
 ### Scaling Our Project
 Describe how architecture would change
@@ -34,7 +34,6 @@ To generate recipe and query embeddings, we use a BERT-based model deployed with
 - Include nutritional information
 - Scale to use a larger recipe list
 - Add more details to the UI
-
 
 ### Demo Script
 See demo.ipynb to see some of the basics of our recommendation system!
