@@ -20,6 +20,9 @@ To make the system production-ready, we incorporated automation pipelines for em
 - Pinecone vector DB
 - EventBridge: used to trigger certain events, such as redoing model selection when triggered by model monitor or to re-embedding recipes based on new model
 
+### Total Cost
+Our project ended up costing a total of 18.43, all of which came from Sagemaker costs, particularly from having endpoints and lab instances running.
+
 ### Scaling Our Project
 Describe how architecture would change
 Currently, we use Streamlit for the user interface, which works well for prototyping and demos. To scale, we would replace Streamlit with a React-based frontend deployed via AWS Amplify or CloudFront. This approach provides better performance, load balancing, and global content delivery for end users.
